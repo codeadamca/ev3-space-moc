@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+ev3-lego-space-base.code-workspace
