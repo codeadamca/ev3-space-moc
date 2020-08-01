@@ -12,7 +12,10 @@ import struct, sys
 import threading
 
 
-# Define custom functions
+'''
+Define custom functions
+'''
+
 
 # A helper function for converting stick values (0 to 255) to more usable
 # numbers (-100 to 100)
@@ -23,7 +26,40 @@ def scale(val, src, dst):
     return result
 
 
-# Define array to store PS4 button status
+def setVoice(id):
+
+    global ev3
+
+    if id == 1:
+        ev3.speaker.set_speech_options(None, 'f5', 180, 500)
+    elif id == 2:
+        ev3.speaker.set_speech_options(None, 'm7', 180, 500)
+
+
+def flashLights(sequence):
+
+    global ev3
+
+    for element in sequence:
+        if element == "R":
+            ev3.light.on(Color.RED)
+        elif element == "O":
+            ev3.light.on(Color.ORANGE)
+        elif element == "Y":
+            ev3.light.on(Color.YELLOW)
+        elif element == "G":
+            ev3.light.on(Color.GREEN)
+        else:
+            ev3.light.off()
+
+        wait(200)
+
+
+'''
+Define array to store PS4 button statuses
+'''
+
+
 buttons = {}
 # buttons["x"] = False
 # buttons["square"] = False
@@ -37,14 +73,37 @@ buttons["down"] = False
 
 buttons["ps"] = False
 
-# Initialize EV3 motors and sensors
+
+'''
+Initialize EV3 brick
+'''
+
+
+ev3 = EV3Brick()
+
+# Initialize light
+ev3.light.off()
+
+# Initialize speaker
+ev3.speaker.set_volume(20)
+ev3.speaker.beep()
+
+# Initialize motors
 motorA = Motor(Port.A)
 motorB = Motor(Port.B)
 
+# Initialize sensors
 touchSensor1 = TouchSensor(Port.S1)
 
 
+'''
+Base initialization
+'''
+
+
 # Set up the garage
+ev3.light.on(Color.RED)
+
 while touchSensor1.pressed() is False:
 
     motorA.dc(-20)
@@ -56,8 +115,16 @@ motorB.dc(0)
 motorA.reset_angle(0)
 motorB.reset_angle(0)
 
+setVoice(1)
+ev3.speaker.say("Garage initilized")
 
-# Define function to react to PS4 controller events
+ev3.light.off()
+
+'''
+Define threaded function to react to PS4 controller events
+'''
+
+
 def eventLoop():
 
     # Set global variables
@@ -111,37 +178,70 @@ def eventLoop():
         event = in_file.read(EVENT_SIZE)
 
 
-# Initialize threads
+'''
+Initialize threads
+'''
+
+
 processA = threading.Thread(target=eventLoop)
 processA.start()
 
 
-# Create main loop
+'''
+Create main loop
+'''
+
+
 while True:
 
     # print(buttons)
 
-    # React to up and down button
+    # Move garage based on up and down button
     if buttons["up"] is True and motorA.angle() < 500:
 
+        ev3.light.on(Color.GREEN)
         motorA.dc(20)
         motorB.dc(20)
 
+    elif buttons["up"] is True and motorA.angle() > 500:
+
+        ev3.light.off()
+        motorA.dc(0)
+        motorB.dc(0)
+        setVoice(1)
+        ev3.speaker.say("Garage opened")
+
     elif buttons["down"] is True and motorA.angle() > 0:
 
+        ev3.light.on(Color.RED)
         motorA.dc(-20)
         motorB.dc(-20)
 
+    elif buttons["down"] is True and motorA.angle() < 0:
+
+        ev3.light.off()
+        motorA.dc(0)
+        motorB.dc(0)
+        setVoice(1)
+        ev3.speaker.say("Garage closed")
+
     else:
 
+        ev3.light.off()
         motorA.dc(0)
         motorB.dc(0)
 
-    print("Angle: ", motorA.angle())
-
-    # React to PS button being pressed
+    # Stop script when PS button is pressed
     if buttons["ps"] is True:
 
+        # Closing sequence
+        ev3.light.on(Color.RED)
+        setVoice(2)
+        ev3.speaker.say("Program complete")
+        ev3.light.off()
+
+        # Kill script
         break
 
+    # Wait to prevent script from running too fast
     wait(50)
