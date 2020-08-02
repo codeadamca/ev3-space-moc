@@ -3,9 +3,9 @@ from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
 from pybricks.parameters import Port, Stop, Direction, Button, Color
-from pybricks.tools import wait, StopWatch, DataLog
-from pybricks.robotics import DriveBase
-from pybricks.media.ev3dev import SoundFile, ImageFile
+from pybricks.tools import wait
+# from pybricks.robotics import DriveBase
+# from pybricks.media.ev3dev import SoundFile, ImageFile
 
 import struct, sys
 
@@ -26,6 +26,27 @@ def scale(val, src, dst):
     return result
 
 
+def saySomething(say, voice=False):
+
+    global ev3
+
+    if isinstance(voice, int):
+
+        setVoice(voice)
+
+    ev3.speaker.say(say)
+    # threading.Thread(target=saySomethingThread, args=(say,)).start()
+
+
+'''
+def saySomethingThread(say):
+
+    global ev3
+
+    ev3.speaker.say(say)
+'''
+
+
 def setVoice(id):
 
     global ev3
@@ -33,14 +54,21 @@ def setVoice(id):
     if id == 1:
         ev3.speaker.set_speech_options(None, 'f5', 180, 500)
     elif id == 2:
-        ev3.speaker.set_speech_options(None, 'm7', 180, 500)
+        ev3.speaker.set_speech_options(None, 'm7', 180, 100)
 
 
+'''
 def flashLights(sequence):
+
+    threading.Thread(target=flashLightsThread, args=(sequence,)).start()
+
+
+def flashLightsThread(sequence):
 
     global ev3
 
     for element in sequence:
+
         if element == "R":
             ev3.light.on(Color.RED)
         elif element == "O":
@@ -52,7 +80,12 @@ def flashLights(sequence):
         else:
             ev3.light.off()
 
-        wait(200)
+        wait(1000)
+
+    ev3.light.off()
+
+    return True
+'''
 
 
 '''
@@ -85,7 +118,7 @@ ev3 = EV3Brick()
 ev3.light.off()
 
 # Initialize speaker
-ev3.speaker.set_volume(20)
+ev3.speaker.set_volume(100)
 ev3.speaker.beep()
 
 # Initialize motors
@@ -94,6 +127,13 @@ motorB = Motor(Port.B)
 
 # Initialize sensors
 touchSensor1 = TouchSensor(Port.S1)
+colortouchSensor2 = ColorSensor(Port.S2)
+
+# This color sensor is being used as a light
+# ambient() is Blue
+# reflection() is Red
+# rgb() and color() uses all three lights
+colortouchSensor2.color()
 
 
 '''
@@ -116,7 +156,8 @@ motorA.reset_angle(0)
 motorB.reset_angle(0)
 
 setVoice(1)
-ev3.speaker.say("Garage initilized")
+# ev3.speaker.say("Garage initilized")
+saySomething("Garage initilized")
 
 ev3.light.off()
 
@@ -183,8 +224,7 @@ Initialize threads
 '''
 
 
-processA = threading.Thread(target=eventLoop)
-processA.start()
+threading.Thread(target=eventLoop).start()
 
 
 '''
@@ -200,34 +240,37 @@ while True:
     if buttons["up"] is True and motorA.angle() < 500:
 
         ev3.light.on(Color.GREEN)
+
         motorA.dc(20)
         motorB.dc(20)
 
     elif buttons["up"] is True and motorA.angle() > 500:
 
-        ev3.light.off()
+        ev3.light.on(Color.RED)
+
         motorA.dc(0)
         motorB.dc(0)
-        setVoice(1)
-        ev3.speaker.say("Garage opened")
+
+        saySomething("Garage opened", 1)
 
     elif buttons["down"] is True and motorA.angle() > 0:
 
-        ev3.light.on(Color.RED)
+        ev3.light.on(Color.GREEN)
+
         motorA.dc(-20)
         motorB.dc(-20)
 
     elif buttons["down"] is True and motorA.angle() < 0:
 
-        ev3.light.off()
+        ev3.light.on(Color.RED)
+
         motorA.dc(0)
         motorB.dc(0)
-        setVoice(1)
-        ev3.speaker.say("Garage closed")
+
+        saySomething("Garage closed", 1)
 
     else:
 
-        ev3.light.off()
         motorA.dc(0)
         motorB.dc(0)
 
@@ -236,12 +279,17 @@ while True:
 
         # Closing sequence
         ev3.light.on(Color.RED)
-        setVoice(2)
-        ev3.speaker.say("Program complete")
+
+        saySomething("Program complete", 2)
+
         ev3.light.off()
 
         # Kill script
         break
+
+    if all(value is False for value in buttons.values()):
+
+        ev3.light.off()
 
     # Wait to prevent script from running too fast
     wait(50)
