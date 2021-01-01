@@ -36,6 +36,8 @@ def saySomething(say, voice=False):
         setVoice(voice)
 
     ev3.speaker.say(say)
+    print('-------------------')
+    print(say)
 
 # A function to set the current voice settings
 def setVoice(id):
@@ -43,11 +45,11 @@ def setVoice(id):
     global ev3
 
     if id == 1:
-        ev3.speaker.set_speech_options(None, 'f5', 220, 500)
+        ev3.speaker.set_speech_options(None, 'f5', 250, 500)
     elif id == 2:
-        ev3.speaker.set_speech_options(None, 'm7', 220, 100)
+        ev3.speaker.set_speech_options(None, 'm1', 250, 100)
     elif id == 3:
-        ev3.speaker.set_speech_options(None, 'croak', 220, 900)
+        ev3.speaker.set_speech_options(None, 'whisper', 250, 100)
 
 
 '''
@@ -177,7 +179,7 @@ while True:
         # Closing sequence
         ev3.light.on(Color.RED)
 
-        saySomething("Program complete", 1)
+        saySomething("Client two shut down", 1)
 
         ev3.light.off()
 

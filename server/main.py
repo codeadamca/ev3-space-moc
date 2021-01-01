@@ -38,6 +38,8 @@ def saySomething(say, voice=False):
         setVoice(voice)
 
     ev3.speaker.say(say)
+    print('-------------------')
+    print(say)
 
 # A function to set the current voice settings
 def setVoice(id):
@@ -45,28 +47,27 @@ def setVoice(id):
     global ev3
 
     if id == 1:
-        ev3.speaker.set_speech_options(None, 'f5', 220, 500)
+        ev3.speaker.set_speech_options(None, 'f5', 250, 500)
     elif id == 2:
-        ev3.speaker.set_speech_options(None, 'm7', 220, 100)
+        ev3.speaker.set_speech_options(None, 'm1', 250, 100)
     elif id == 3:
-        ev3.speaker.set_speech_options(None, 'croak', 220, 900)
+        ev3.speaker.set_speech_options(None, 'whisper', 250, 100)
 
 # A function to broadcast button updates to all clients
 def update(key, value):
 
     global buttons, client1, client2
 
-    print('Current Value: '+str(buttons[key]))
-    print('New Value: '+str(value))
+    # print('Current Value: '+str(buttons[key]))
+    # print('New Value: '+str(value))
 
     if buttons[key] != value:
 
         try:
             client1.send(key + ':' + str(value))
             client2.send(key + ':' + str(value))
-            print('SUCCESS')
         except:
-            print('ERROR')
+            print('ERROR: Could not send client controller update')
 
         buttons[key] = value
 
@@ -118,6 +119,15 @@ ev3.light.off()
 
 # The server must be started before the client!
 saySomething('Waiting for clients', 3)
+
+
+
+# Define phrase to speak
+sample = "The five boxing wizards jump quickly"
+
+# Set other options
+wordsPerMinute = 180
+voicePitch = 50
 
 server = BluetoothMailboxServer()
 server.wait_for_connection(2)
@@ -354,13 +364,13 @@ while True:
     # Garage door
     if buttons["r1"]:
 
-        motorA.dc(20)
-        motorB.dc(20)
+        motorA.dc(60)
+        motorB.dc(60)
         
     elif buttons["r2"]:
 
-        motorA.dc(-20)
-        motorB.dc(-20)
+        motorA.dc(-40)
+        motorB.dc(-40)
         
     else:
 
@@ -370,12 +380,12 @@ while True:
     # Stop script when PS button is pressed
     if buttons["ps"] is True:
 
-        wait(2000)
+        wait(4000)
 
         # Closing sequence
         ev3.light.on(Color.RED)
 
-        saySomething("Program complete", 3)
+        saySomething("Server shut down", 3)
 
         ev3.light.off()
 
