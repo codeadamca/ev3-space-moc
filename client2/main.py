@@ -45,11 +45,11 @@ def setVoice(id):
     global ev3
 
     if id == 1:
-        ev3.speaker.set_speech_options(None, 'f5', 250, 500)
+        ev3.speaker.set_speech_options(None, 'f5', 250, 99)
     elif id == 2:
-        ev3.speaker.set_speech_options(None, 'm1', 250, 100)
+        ev3.speaker.set_speech_options(None, 'm1', 250, 0)
     elif id == 3:
-        ev3.speaker.set_speech_options(None, 'whisper', 250, 100)
+        ev3.speaker.set_speech_options(None, 'm7', 250, 99)
 
 
 '''
@@ -74,10 +74,10 @@ buttons["r2"] = False
 buttons["l1"] = False
 buttons["l2"] = False
 
-buttons["leftHorizontal"] = 128
-buttons["leftVertical"] = 128
-buttons["rightHorizontal"] = 128
-buttons["rightVertical"] = 128
+buttons["leftHorizontal"] = 0
+buttons["leftVertical"] = 0
+buttons["rightHorizontal"] = 0
+buttons["rightVertical"] = 0
 
 buttons["ps"] = False
 
@@ -107,6 +107,7 @@ client2 = TextMailbox('client2', client)
 
 # Initialize EV3 touch sensor and motors
 motorA = Motor(Port.A)
+motorB = Motor(Port.B)
 
 
 ''' 
@@ -171,7 +172,11 @@ while True:
 
     if flickerStatus == True:
 
-        motorA.dc(round(20 + random.random() * 80, 0))
+        motorA.dc(round(40 + random.random() * 60, 0))
+
+    # Move turbine
+    motorB.dc(buttons['leftVertical'])
+        
 
     # Stop script when PS button is pressed
     if buttons["ps"] is True:

@@ -47,11 +47,11 @@ def setVoice(id):
     global ev3
 
     if id == 1:
-        ev3.speaker.set_speech_options(None, 'f5', 250, 500)
+        ev3.speaker.set_speech_options(None, 'f5', 250, 50)
     elif id == 2:
-        ev3.speaker.set_speech_options(None, 'm1', 250, 100)
+        ev3.speaker.set_speech_options(None, 'm1', 250, 0)
     elif id == 3:
-        ev3.speaker.set_speech_options(None, 'whisper', 250, 100)
+        ev3.speaker.set_speech_options(None, 'm7', 250, 99)
 
 # A function to broadcast button updates to all clients
 def update(key, value):
@@ -94,10 +94,10 @@ buttons["r2"] = False
 buttons["l1"] = False
 buttons["l2"] = False
 
-buttons["leftHorizontal"] = 128
-buttons["leftVertical"] = 128
-buttons["rightHorizontal"] = 128
-buttons["rightVertical"] = 128
+buttons["leftHorizontal"] = 0
+buttons["leftVertical"] = 0
+buttons["rightHorizontal"] = 0
+buttons["rightVertical"] = 0
 
 buttons["ps"] = False
 
@@ -119,8 +119,6 @@ ev3.light.off()
 
 # The server must be started before the client!
 saySomething('Waiting for clients', 3)
-
-
 
 # Define phrase to speak
 sample = "The five boxing wizards jump quickly"
@@ -267,20 +265,18 @@ def eventLoop():
         # If a directional button was pressed
         elif ev_type == 3:
 
-            # print("DIRECTION")
-
             # Four axis values
-            if code <= 3:
+            if code <= 5:
 
-                value = scale(value, (0, 255), (-10, 10))
+                value = scale(value, (0, 255), (-25, 25)) * 4
 
                 if code == 0:
                     update('leftHorizontal', value)
                 elif code == 1:
                     update('leftVertical', value)
-                elif code == 2:
-                    update('rightHorizontal', value)
                 elif code == 3:
+                    update('rightHorizontal', value)
+                elif code == 4:
                     update('rightVertical', value)
 
             # If the up/down button was pressed
@@ -333,8 +329,6 @@ Create main loop
 
 
 while True:
-
-    # print(buttons)
     
     # Turn light on
     if buttons["up"] and lightStatus == False:
@@ -359,7 +353,7 @@ while True:
 
     if flickerStatus == True:
 
-        motorD.dc(round(20 + random.random() * 80, 0))
+        motorD.dc(round(40 + random.random() * 60, 0))
 
     # Garage door
     if buttons["r1"]:
