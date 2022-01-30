@@ -1,5 +1,4 @@
-# ev3-lego-space-base
-
+# ev3-space-mpc
 The source code for a LEGO base controlled using LEGO Mindstorms EV3, a PS4 controller, and a web browser interface.
 
 ## Tutorial Requirements:
