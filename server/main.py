@@ -1,9 +1,12 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.hubs import EV3Brick
+from pybricks.media.ev3dev import SoundFile
 from pybricks.ev3devices import Motor, ColorSensor
 from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait
 from pybricks.messaging import BluetoothMailboxServer, TextMailbox
+
+from pybricks.iodevices import DCMotor
 
 import threading
 import random
@@ -63,11 +66,13 @@ def update(key, value):
 
     if buttons[key] != value:
 
+        '''
         try:
-            client1.send(key + ':' + str(value))
-            client2.send(key + ':' + str(value))
+            # client1.send(key + ':' + str(value))
+            # client2.send(key + ':' + str(value))
         except:
             print('ERROR: Could not send client controller update')
+        '''
 
         buttons[key] = value
 
@@ -111,38 +116,38 @@ Initialize EV3 brick
 ev3 = EV3Brick()
 
 # Initialize speaker
-ev3.speaker.set_volume(100)
+ev3.speaker.set_volume(50)
 ev3.speaker.beep()
 
 # Trun off lights
 ev3.light.off()
 
 # The server must be started before the client!
-saySomething('Waiting for clients', 3)
+# saySomething('Waiting for clients', 3)
 
 # Define phrase to speak
-sample = "The five boxing wizards jump quickly"
+# sample = "The five boxing wizards jump quickly"
 
 # Set other options
 wordsPerMinute = 180
 voicePitch = 50
 
-server = BluetoothMailboxServer()
-server.wait_for_connection(2)
+# server = BluetoothMailboxServer()
+# server.wait_for_connection(2)
 
-client1 = TextMailbox('client1', server)
-client2 = TextMailbox('client2', server)
+# client1 = TextMailbox('client1', server)
+# client2 = TextMailbox('client2', server)
 
-saySomething('Clients found', 3)
+# saySomething('Clients found', 3)
 
 # Initialize motors
 motorA = Motor(Port.A)
-motorB = Motor(Port.B)
-motorC = Motor(Port.C)
-motorD = Motor(Port.D)
+# motorB = Motor(Port.B)
+motorC = DCMotor(Port.C)
+motorD = DCMotor(Port.D)
 
 motorA.dc(0)
-motorB.dc(0)
+# motorB.dc(0)
 motorC.dc(0)
 motorD.dc(0)
 
@@ -207,7 +212,7 @@ def eventLoop():
         # If a button was pressed or released
         if ev_type == 1:
 
-            # If the L1 button is pressed
+            # If the L1 button is psressed
             if code == 310 and value == 1:
                 update('l1', True)
                 
@@ -329,52 +334,65 @@ Create main loop
 
 
 while True:
-    
+
     # Turn light on
     if buttons["up"] and lightStatus == False:
 
         lightStatus = True
         motorC.dc(100)
         
+        ev3.speaker.play_file(SoundFile.CONFIRM)
+        
+        
     elif buttons["down"] and lightStatus == True:
 
         lightStatus = False
         motorC.dc(0)
+
+        ev3.speaker.play_file(SoundFile.GENERAL_ALERT)
 
     # Turn flickering light on
     if buttons["right"] and flickerStatus == False:
 
         flickerStatus = True
 
+        ev3.speaker.play_file(SoundFile.CONFIRM)
+
     elif buttons["left"] and flickerStatus == True:
 
         flickerStatus = False
         motorD.dc(0)
 
+        ev3.speaker.play_file(SoundFile.GENERAL_ALERT)
+
     if flickerStatus == True:
 
-        motorD.dc(round(40 + random.random() * 60, 0))
+        motorD.dc(round(40 + random.random() * 30, 0))
 
     # Garage door
     if buttons["r1"]:
 
-        motorA.dc(60)
-        motorB.dc(60)
+        motorA.dc(30)
+        # motorB.dc(60)
+
+        ev3.speaker.play_file(SoundFile.AIRBRAKE)
         
     elif buttons["r2"]:
 
-        motorA.dc(-40)
-        motorB.dc(-40)
+        motorA.dc(-30)
+        # motorB.dc(-40)
+
+        ev3.speaker.play_file(SoundFile.AIR_RELEASE)
         
     else:
 
         motorA.dc(0)
-        motorB.dc(0)
+        # motorB.dc(0)
 
     # Stop script when PS button is pressed
     if buttons["ps"] is True:
 
-        wait(4000)
+        wait(1000)
 
         # Closing sequence
         ev3.light.on(Color.RED)
