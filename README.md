@@ -6,6 +6,8 @@ Online application is available here:
 
 https://pages.codeadam.ca/ev3-space-moc-panel
 
+![Space Base Panel](https://github.com/codeadamca/ev3-space-moc/blob/main/screenshop-spacebase.png?raw=true)
+
 ## Requirements:
 
 * [LEGO&trade; EV3](https://www.lego.com/en-ca/product/lego-mindstorms-ev3-31313) 
